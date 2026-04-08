@@ -1,0 +1,25 @@
+[tool.uv.workspace]
+members = ["backend"]
+
+[dependency-groups]
+dev = [
+  "pyright==1.1.408",
+  "pytest==9.0.2",
+  "pytest-asyncio>=0.25.0",
+  "ruff==0.14.14",
+]
+
+[tool.ruff.lint]
+select = ["RET503"]
+
+[tool.pyright]
+include = ["backend"]
+exclude = ["**/__pycache__", "**/node_modules", "**/.*", ".venv", ".direnv"]
+typeCheckingMode = "strict"
+reportAssignmentType = "none"
+reportIncompatibleVariableOverride = "none"
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend"]
+asyncio_mode = "auto"

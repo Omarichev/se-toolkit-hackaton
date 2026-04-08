@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(github.com)",
+      "WebSearch",
+      "Bash(git clone *)",
+      "Bash(uv *)",
+      "Bash(corepack *)",
+      "Bash(pnpm install)",
+      "Bash(npm install)",
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(docker compose down *)",
+      "Bash(docker system *)",
+      "Bash(docker run *)",
+      "Bash(mkdir *)",
+      "Bash(pip download *)",
+      "Bash(python3 *)",
+      "Bash(docker compose *)",
+      "Bash(curl *)",
+      "Bash(sleep *)",
+      "Bash(do *)",
+      "Bash(done)"
+    ]
+  },
+  "$version": 3
+}
