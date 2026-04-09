@@ -5,8 +5,8 @@ WORKDIR /app
 # Copy package files
 COPY frontend/package.json frontend/package-lock.json* ./
 
-# Install dependencies
-RUN npm ci --ignore-scripts
+# Install dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY frontend/ ./
