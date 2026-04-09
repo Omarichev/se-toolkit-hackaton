@@ -20,7 +20,9 @@
       "Bash(curl *)",
       "Bash(sleep *)",
       "Bash(do *)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(test *)",
+      "Bash(docker-compose *)"
     ]
   },
   "$version": 3

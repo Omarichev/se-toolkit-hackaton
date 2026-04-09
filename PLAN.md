@@ -46,8 +46,12 @@ All three components use the same LLM backend (OpenAI-compatible API) for transl
 - User enters formal text and bot translates it into informal
 
 ## Version 2
-- User may choose to translate formal text to informal or backwards
-- After translation of formal text AI suggests to write formal rejection/acceptance
+- **Bidirectional translation**: User may choose to translate formal text to informal or backwards
+- **Web UI**: Added direction toggle button group (Formal → Informal / Informal → Formal)
+- **API**: `POST /api/translate` now accepts optional `direction` parameter (defaults to `formal_to_informal`)
+- **Telegram Bot**: Added `/mode` command to switch between translation directions
+- **System prompts**: Two separate prompts — one for formal→informal, one for informal→formal
+- **Examples**: Different example sets shown based on current direction
 
 ## Step 1: Scaffold Project Structure
 
@@ -78,20 +82,29 @@ All three components use the same LLM backend (OpenAI-compatible API) for transl
 
 ### How it works
 
-1. Client sends `POST /api/translate` with `{"text": "formal text here"}`
-2. Backend constructs messages with a **system prompt** that instructs the LLM to translate formal → informal
-3. LLM API is called via OpenAI-compatible `/chat/completions` endpoint
-4. Response is returned as `{"original": "...", "translated": "..."}`
+1. Client sends `POST /api/translate` with `{"text": "formal text here", "direction": "formal_to_informal"}`
+2. Backend selects the appropriate system prompt based on `direction`
+3. Backend constructs messages with the selected **system prompt** that instructs the LLM to translate in the chosen direction
+4. LLM API is called via OpenAI-compatible `/chat/completions` endpoint
+5. Response is returned as `{"original": "...", "translated": "...", "direction": "..."}`
 
-### System prompt
+### System prompts
 
-The LLM is instructed with specific rules:
+The LLM is instructed with specific rules depending on direction:
+
+**Formal → Informal:**
 - Keep original meaning intact
 - Use contractions (don't, can't, it's)
 - Use casual vocabulary
 - Be friendly and conversational
 - Use simpler sentence structures
-- Add casual filler words when natural (yeah, so, pretty much)
+
+**Informal → Formal:**
+- Keep original meaning intact
+- Use proper grammar and complete sentences
+- Avoid contractions
+- Use formal vocabulary and professional tone
+- Suitable for business emails, official documents
 
 ### Tests
 
@@ -117,18 +130,20 @@ The LLM is instructed with specific rules:
 ### UI Design
 
 - **Header**: "Formalator" with tagline
-- **Input panel** (left): Textarea for formal text + Translate/Clear buttons
-- **Output panel** (right): Displays informal translation
-- **Examples section**: Clickable example sentences that fill the input
+- **Direction Toggle**: Button group to switch between "Formal → Informal" and "Informal → Formal"
+- **Input panel** (left): Textarea for text + Translate/Clear buttons (labels change based on direction)
+- **Output panel** (right): Displays translation result
+- **Examples section**: Clickable example sentences that fill the input (examples change based on direction)
 - **Footer**: Tech stack attribution
 
 ### How it works
 
-1. User types formal text in the left panel
-2. Clicks "Translate →"
-3. Frontend calls `POST /api/translate`
-4. Response appears in the right panel
-5. User can click examples to try them instantly
+1. User selects translation direction using the toggle buttons
+2. User types text in the left panel
+3. Clicks "Make Informal →" or "Make Formal →"
+4. Frontend calls `POST /api/translate` with `{text, direction}`
+5. Response appears in the right panel
+6. User can click examples to try them instantly
 
 ---
 
@@ -149,9 +164,10 @@ The LLM is instructed with specific rules:
 | Command | Behavior |
 |---------|----------|
 | `/start` | Welcome message with instructions |
-| `/help` | Help text with examples |
-| `/translate <text>` | Translates the provided text |
-| *(any text)* | Automatically translates any plain text message |
+| `/help` | Help text with examples for current mode |
+| `/mode <direction>` | Switch translation direction (formal→informal or informal→formal) |
+| `/translate <text>` | Translates the provided text using current mode |
+| *(any text)* | Automatically translates any plain text message using current mode |
 
 ### `--test` mode
 

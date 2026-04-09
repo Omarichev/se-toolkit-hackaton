@@ -2,11 +2,14 @@ import { useState } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
+type Direction = 'formal_to_informal' | 'informal_to_formal'
+
 function App() {
   const [inputText, setInputText] = useState('')
   const [outputText, setOutputText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [direction, setDirection] = useState<Direction>('formal_to_informal')
 
   const handleTranslate = async () => {
     if (!inputText.trim()) return
@@ -19,7 +22,7 @@ function App() {
       const response = await fetch(`${API_URL}/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: inputText }),
+        body: JSON.stringify({ text: inputText, direction }),
       })
 
       if (!response.ok) {
@@ -41,7 +44,13 @@ function App() {
     setError('')
   }
 
-  const examples = [
+  const toggleDirection = () => {
+    setDirection(prev => prev === 'formal_to_informal' ? 'informal_to_formal' : 'formal_to_informal')
+    setInputText('')
+    setOutputText('')
+  }
+
+  const formalExamples = [
     "I would like to inquire about the status of my order.",
     "Please be advised that the meeting has been rescheduled.",
     "I am writing to express my sincere gratitude for your assistance.",
@@ -49,30 +58,68 @@ function App() {
     "Kindly find the attached document for your perusal.",
   ]
 
+  const informalExamples = [
+    "Hey, what's up with my order?",
+    "Just letting you know, the meeting got moved to a different time.",
+    "Thanks a ton for helping me out!",
+    "Sorry, but your application didn't work out.",
+    "Here's that doc you asked for, check it out.",
+  ]
+
+  const examples = direction === 'formal_to_informal' ? formalExamples : informalExamples
+  const inputLabel = direction === 'formal_to_informal' ? '📝 Formal Text' : '💬 Informal Text'
+  const outputLabel = direction === 'formal_to_informal' ? '💬 Informal Text' : '📝 Formal Text'
+  const inputPlaceholder = direction === 'formal_to_informal' ? 'Enter formal text here...' : 'Enter casual text here...'
+  const buttonLabel = direction === 'formal_to_informal' ? 'Make Informal →' : 'Make Formal →'
+
   return (
     <div className="min-vh-100 bg-light">
       {/* Header */}
       <header className="bg-primary text-white py-4">
         <div className="container">
           <h1 className="mb-1">🔄 Formalator</h1>
-          <p className="mb-0 opacity-75">Transform formal text into casual, conversational English</p>
+          <p className="mb-0 opacity-75">Transform text between formal and informal styles</p>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container py-4">
+        {/* Direction Toggle */}
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="card shadow-sm">
+              <div className="card-body text-center">
+                <div className="btn-group" role="group">
+                  <button
+                    className={`btn ${direction === 'formal_to_informal' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => direction !== 'formal_to_informal' && toggleDirection()}
+                  >
+                    Formal → Informal
+                  </button>
+                  <button
+                    className={`btn ${direction === 'informal_to_formal' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => direction !== 'informal_to_formal' && toggleDirection()}
+                  >
+                    Informal → Formal
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="row g-4">
           {/* Input Panel */}
           <div className="col-lg-6">
             <div className="card h-100 shadow-sm">
               <div className="card-header bg-white">
-                <h5 className="mb-0">📝 Formal Text</h5>
+                <h5 className="mb-0">{inputLabel}</h5>
               </div>
               <div className="card-body">
                 <textarea
                   className="form-control mb-3"
                   rows={6}
-                  placeholder="Enter formal text here..."
+                  placeholder={inputPlaceholder}
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                 />
@@ -88,7 +135,7 @@ function App() {
                         Translating...
                       </>
                     ) : (
-                      'Translate →'
+                      buttonLabel
                     )}
                   </button>
                   <button
@@ -107,7 +154,7 @@ function App() {
           <div className="col-lg-6">
             <div className="card h-100 shadow-sm">
               <div className="card-header bg-white">
-                <h5 className="mb-0">💬 Informal Text</h5>
+                <h5 className="mb-0">{outputLabel}</h5>
               </div>
               <div className="card-body">
                 {error && (

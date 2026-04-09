@@ -1,13 +1,21 @@
 # Formalator 🔄
 
-**Formal to Informal Text Translator** — A web app and Telegram bot that transforms formal text into casual, conversational English using LLM.
+**Bidirectional Text Translator** — A web app and Telegram bot that transforms text between formal and informal styles using LLM.
 
 ## Features
 
-- 🌐 **Web Interface** — Clean React UI with side-by-side comparison
-- 🤖 **Telegram Bot** — Translate text on the go via Telegram
+-  **Web Interface** — Clean React UI with side-by-side comparison
+- 🔄 **Bidirectional Translation** — Switch between Formal → Informal and Informal → Formal
+- 🤖 **Telegram Bot** — Translate text on the go via Telegram with `/mode` command
 - 🔌 **LLM-Powered** — Uses OpenAI-compatible API for high-quality translations
 - 🐳 **Docker-Ready** — One-command deployment with docker-compose
+
+## Version 2 — What's New
+
+- **Bidirectional translation**: Translate both ways (formal↔informal)
+- **Web UI**: Direction toggle button group with dynamic labels and examples
+- **API**: New `direction` parameter in `/api/translate` endpoint
+- **Telegram Bot**: New `/mode` command to switch translation direction
 
 ## Architecture
 
@@ -127,20 +135,26 @@ docker compose down
 
 ### POST `/api/translate`
 
-Translate formal text to informal.
+Translate text between formal and informal styles.
 
 **Request:**
 ```json
 {
-  "text": "I would like to inquire about the status of my order."
+  "text": "I would like to inquire about the status of my order.",
+  "direction": "formal_to_informal"
 }
 ```
+
+**Direction options:**
+- `formal_to_informal` (default): Makes text casual and conversational
+- `informal_to_formal`: Makes text professional and formal
 
 **Response:**
 ```json
 {
   "original": "I would like to inquire about the status of my order.",
-  "translated": "Hey, can you check what's up with my order?"
+  "translated": "Hey, can you check what's up with my order?",
+  "direction": "formal_to_informal"
 }
 ```
 
@@ -161,10 +175,20 @@ Health check endpoint.
 | Command | Description |
 |---------|-------------|
 | `/start` | Welcome message |
-| `/help` | Show help and examples |
+| `/help` | Show help and examples for current mode |
+| `/mode <direction>` | Switch translation direction (formal→informal or informal→formal) |
 | `/translate <text>` | Translate specific text |
 
-You can also just send any text message and the bot will translate it to informal style automatically.
+You can also just send any text message and the bot will translate it using the current mode.
+
+### Telegram Bot Modes
+
+Use `/mode` to switch directions:
+
+```
+/mode formal→informal   # Make text casual
+/mode informal→formal   # Make text formal
+```
 
 ## Project Structure
 

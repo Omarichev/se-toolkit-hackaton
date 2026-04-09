@@ -12,13 +12,14 @@ from pathlib import Path
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command, CommandStart
 from config import load_config
-from handlers.commands import handle_start, handle_help, handle_translate
+from handlers.commands import handle_start, handle_help, handle_translate, handle_mode
 
 
 COMMAND_HANDLERS = {
     "start": handle_start,
     "help": handle_help,
     "translate": handle_translate,
+    "mode": handle_mode,
 }
 
 
@@ -96,6 +97,14 @@ async def run_telegram_mode() -> None:
         args = message.text.split(maxsplit=1)
         text = args[1] if len(args) > 1 else ""
         response = await handle_translate(text, config)
+        await message.answer(response)
+
+    @dp.message(Command("mode"))
+    async def mode_handler(message: types.Message) -> None:
+        """Handle /mode command."""
+        args = message.text.split(maxsplit=1)
+        direction = args[1] if len(args) > 1 else ""
+        response = await handle_mode(direction, config)
         await message.answer(response)
 
     @dp.message()
