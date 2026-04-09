@@ -1,0 +1,142 @@
+\documentclass[11pt]{beamer}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{qrcode}
+
+\setbeamertemplate{footline}[frame number]
+
+\title{Formalator}
+\subtitle{Bidirectional Text Translator}
+\author{Amir Gafarov}
+\institute{
+    a.gafarov@innopolis.university \\
+    CSE-03
+}
+\date{\today}
+
+\begin{document}
+
+% ===== TITLE SLIDE =====
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% ===== CONTEXT =====
+\begin{frame}{Context}
+
+    \vspace{0.3cm}
+    \textbf{End-User}
+    \begin{itemize}
+        \item Anyone who needs to adapt their text tone — from students writing professional emails to professionals who want a more casual, approachable tone.
+    \end{itemize}
+
+    \vspace{0.3cm}
+    \textbf{Problem}
+    \begin{itemize}
+        \item Many people struggle to adjust their writing style for different contexts (formal vs.\ informal). Getting it right takes time and effort.
+    \end{itemize}
+
+    \vspace{0.3cm}
+    \textbf{One-Sentence Pitch}
+    \begin{itemize}
+        \item \textit{Formalator} is a web app and Telegram bot that instantly rewrites your text in a formal or informal style using LLM — two interfaces, one engine, both directions.
+    \end{itemize}
+
+\end{frame}
+
+% ===== IMPLEMENTATION =====
+\begin{frame}{Implementation}
+
+    \textbf{Architecture}
+    \begin{itemize}
+        \item \textbf{Backend} — FastAPI (Python) with LLM client
+        \item \textbf{Frontend} — React + TypeScript + Vite + Bootstrap 5
+        \item \textbf{Telegram Bot} — aiogram 3.x (Python)
+        \item \textbf{LLM} — OpenAI-compatible API
+        \item \textbf{Deployment} — Docker Compose (3 services + nginx)
+    \end{itemize}
+
+    \vspace{0.3cm}
+    \textbf{Version 1} — Formal$\,\rightarrow\,$Informal only, Telegram bot, CLI testing.
+
+    \vspace{0.3cm}
+    \textbf{Version 2} — Bidirectional translation, React web UI, \texttt{/mode} bot command, unified \texttt{direction} parameter in API.
+
+\end{frame}
+
+% ===== IMPLEMENTATION — FEEDBACK =====
+\begin{frame}{Implementation — Feedback Addressed}
+
+    \textbf{TA Feedback Points Resolved}
+    \begin{itemize}
+        \item \textbf{Docker build consistency} — Fixed \texttt{npm ci} crash on VM by switching to \texttt{npm install}; frontend now uses the same package manager (\texttt{pnpm}) locally and in CI.
+        \item \textbf{Multi-interface parity} — Both web UI and Telegram bot support the same bidirectional translation feature.
+        \item \textbf{System prompt quality} — Separate prompts for each direction with clear style rules (contractions, vocabulary, tone).
+        \item \textbf{Deployment reliability} — Docker Compose with proper \texttt{.dockerignore}, build context separation, and \texttt{--no-cache} rebuild on VM.
+    \end{itemize}
+
+\end{frame}
+
+% ===== DEMO =====
+\begin{frame}{Demo}
+
+    \begin{center}
+        \vspace{1cm}
+        {\Huge 🎬}
+
+        \vspace{0.5cm}
+        \textbf{\Large Video Demonstration — Version 2}
+
+        \vspace{0.5cm}
+        \footnotesize Pre-recorded demo with voice-over (≤2 min)
+
+        \vspace{0.3cm}
+        \textit{Shows:}
+        \begin{itemize}
+            \item Web UI: bidirectional translation, direction toggle, examples
+            \item Telegram Bot: \texttt{/mode} switch, live translation
+        \end{itemize}
+
+        \vspace{0.5cm}
+        {\small \textit{(Insert video here)}}
+    \end{center}
+
+\end{frame}
+
+% ===== LINKS =====
+\begin{frame}{Links}
+
+    \vspace{0.2cm}
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \textbf{GitHub Repository}
+            \vspace{0.2cm}
+            \begin{center}
+                \scriptsize
+                \url{https://github.com/Omarichev/Formalator}
+                \vspace{0.2cm}
+
+                \qrcode[height=2.5cm]{https://github.com/Omarichev/Formalator}
+            \end{center}
+        \end{column}
+
+        \begin{column}{0.48\textwidth}
+            \textbf{Deployed Product}
+            \vspace{0.2cm}
+            \begin{center}
+                \scriptsize
+                \url{http://<your-vm-ip>:80}
+                \vspace{0.2cm}
+
+                \qrcode[height=2.5cm]{http://<your-vm-ip>:80}
+            \end{center}
+        \end{column}
+    \end{columns}
+
+\end{frame}
+
+\end{document}

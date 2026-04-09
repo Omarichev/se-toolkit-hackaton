@@ -2,11 +2,12 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
-COPY frontend/package.json frontend/package-lock.json* ./
+# Copy package files and install dependencies
+COPY frontend/package.json ./package.json
+COPY frontend/package-lock.json ./package-lock.json
 
-# Install dependencies (including devDependencies for build)
-RUN npm ci
+# Use npm install (npm ci has a crash bug on some Linux/Docker setups)
+RUN npm install
 
 # Copy source code
 COPY frontend/ ./
