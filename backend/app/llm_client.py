@@ -1,10 +1,11 @@
 """LLM client for text translation.
 
-Uses OpenAI-compatible API to translate formal text to informal style.
+Uses OpenAI-compatible API to translate between formal and informal text.
 """
 
 import os
 from pathlib import Path
+from typing import Literal
 
 import httpx
 from dotenv import load_dotenv
@@ -18,7 +19,7 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_API_BASE_URL = os.getenv("LLM_API_BASE_URL", "http://localhost:42005/v1")
 LLM_API_MODEL = os.getenv("LLM_API_MODEL", "coder-model")
 
-SYSTEM_PROMPT = """You are a helpful assistant that rewrites formal text into clear, simple, and conversational English.
+SYSTEM_PROMPT_FORMAL_TO_INFORMAL = """You are a helpful assistant that rewrites formal text into clear, simple, and conversational English.
 
 Rules:
 - Keep the original meaning intact
@@ -36,18 +37,46 @@ Examples:
 - "I am writing to express my sincere gratitude for your assistance." → "Thank you very much for your help, I really appreciate it."
 """
 
+SYSTEM_PROMPT_INFORMAL_TO_FORMAL = """You are a helpful assistant that rewrites casual, informal text into clear, professional, and formal English.
 
-async def translate_text(text: str) -> str:
-    """Translate formal text to informal using the LLM API.
+Rules:
+- Keep the original meaning intact
+- Use proper grammar and complete sentences
+- Avoid contractions (use "do not" instead of "don't", "cannot" instead of "can't")
+- Use formal vocabulary and professional tone
+- Use more sophisticated sentence structures
+- Be polite and respectful
+- Suitable for business emails, official documents, and academic writing
+
+Examples:
+- "Hey, can you check what's up with my order?" → "I would like to inquire about the status of my order."
+- "Just letting you know, the meeting got moved." → "Please be advised that the meeting has been rescheduled."
+- "Thanks a ton for helping me out!" → "I would like to express my sincere gratitude for your assistance."
+"""
+
+
+async def translate_text(
+    text: str, direction: Literal["formal_to_informal", "informal_to_formal"] = "formal_to_informal"
+) -> str:
+    """Translate text between formal and informal styles.
 
     Args:
-        text: The formal text to translate
+        text: The text to translate
+        direction: Translation direction - "formal_to_informal" or "informal_to_formal"
 
     Returns:
-        The informal version of the text
+        The translated text in the target style
     """
     if not LLM_API_KEY:
         return "[Error: LLM_API_KEY not configured]"
+
+    # Select system prompt based on direction
+    if direction == "informal_to_formal":
+        system_prompt = SYSTEM_PROMPT_INFORMAL_TO_FORMAL
+        user_instruction = "Rewrite this in clear, formal, professional English. ONLY output the rewritten text:"
+    else:
+        system_prompt = SYSTEM_PROMPT_FORMAL_TO_INFORMAL
+        user_instruction = "Rewrite this in clear, simple English without slang. ONLY output the rewritten text:"
 
     base_url = LLM_API_BASE_URL
     if not base_url.endswith("/v1") and not base_url.endswith("/chat/completions"):
@@ -56,8 +85,8 @@ async def translate_text(text: str) -> str:
     endpoint = base_url.rstrip("/") + "/chat/completions"
 
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Rewrite this in clear, simple English without slang. ONLY output the rewritten text:\n\n{text}"},
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"{user_instruction}\n\n{text}"},
     ]
 
     try:

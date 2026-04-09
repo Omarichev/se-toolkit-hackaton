@@ -1,15 +1,13 @@
 """LLM client for text translation.
 
-Uses OpenAI-compatible API to translate formal text to informal style.
+Uses OpenAI-compatible API to translate between formal and informal text.
 """
 
 import sys
-from typing import Any
-
-import httpx
+from typing import Any, Literal
 
 
-SYSTEM_PROMPT = """You are a helpful assistant that translates formal text into casual, informal English.
+SYSTEM_PROMPT_FORMAL_TO_INFORMAL = """You are a helpful assistant that translates formal text into casual, informal English.
 
 Rules:
 - Keep the original meaning intact
@@ -28,16 +26,39 @@ Examples:
 
 Only return the translated text, nothing else."""
 
+SYSTEM_PROMPT_INFORMAL_TO_FORMAL = """You are a helpful assistant that translates casual, informal text into formal, professional English.
 
-async def translate_text(text: str, config: dict[str, str] | None = None) -> str:
-    """Translate formal text to informal using the LLM API.
+Rules:
+- Keep the original meaning intact
+- Use proper grammar and complete sentences
+- Avoid contractions (use "do not" instead of "don't")
+- Use formal vocabulary and professional tone
+- Use more sophisticated sentence structures
+- Be polite and respectful
+- Suitable for business emails, official documents, and academic writing
+
+Examples:
+- "Hey, what's up with my order?" → "I would like to inquire about the status of my order."
+- "Just a heads up — the meeting got moved." → "Please be advised that the meeting has been rescheduled."
+- "Thanks a ton for helping me out!" → "I would like to express my sincere gratitude for your assistance."
+
+Only return the translated text, nothing else."""
+
+
+async def translate_text(
+    text: str,
+    config: dict[str, str] | None = None,
+    direction: Literal["formal_to_informal", "informal_to_formal"] = "formal_to_informal",
+) -> str:
+    """Translate text between formal and informal styles.
 
     Args:
-        text: The formal text to translate
+        text: The text to translate
         config: Optional config dict with LLM_API_KEY, LLM_API_BASE_URL, LLM_API_MODEL
+        direction: Translation direction - "formal_to_informal" or "informal_to_formal"
 
     Returns:
-        The informal version of the text
+        The translated text in the target style
     """
     # Load config if not provided
     if config is None:
@@ -54,6 +75,12 @@ async def translate_text(text: str, config: dict[str, str] | None = None) -> str
     if not api_key:
         return "[Error: LLM_API_KEY not configured. Please set it in .env.bot.secret]"
 
+    # Select system prompt based on direction
+    if direction == "informal_to_formal":
+        system_prompt = SYSTEM_PROMPT_INFORMAL_TO_FORMAL
+    else:
+        system_prompt = SYSTEM_PROMPT_FORMAL_TO_INFORMAL
+
     # Ensure base_url ends with /v1 or adjust for chat/completions endpoint
     if not base_url.endswith("/v1") and not base_url.endswith("/chat/completions"):
         base_url = base_url.rstrip("/") + "/v1"
@@ -61,7 +88,7 @@ async def translate_text(text: str, config: dict[str, str] | None = None) -> str
     endpoint = base_url.rstrip("/") + "/chat/completions"
 
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": text},
     ]
 
